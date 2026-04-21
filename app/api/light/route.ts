@@ -1,3 +1,5 @@
+import { getDbName, getMongoClient } from "@/lib/mongodb";
+
 let lastValue = 52;
 let lastTick = Date.now();
 
@@ -17,10 +19,39 @@ function nextLightPercent() {
     return Math.round(lastValue * 10) / 10;
 }
 
+async function insertReading(value: number, threshold: number, status: string) {
+    const client = await getMongoClient();
+    const db = client.db(getDbName());
+    await db.collection("lightData").insertOne({
+        value,
+        threshold,
+        status,
+        timestamp: new Date(),
+    });
+}
+
 export async function GET() {
     const value = nextLightPercent();
     const threshold = 40;
     const status = value < threshold ? "Dark" : "Bright";
+
+    await insertReading(value, threshold, status);
+
+    return Response.json({
+        value,
+        threshold,
+        status,
+        timestamp: new Date().toISOString(),
+    });
+}
+
+export async function POST(request: Request) {
+    const body = (await request.json()) as { value?: number; threshold?: number };
+    const value = typeof body.value === "number" ? body.value : nextLightPercent();
+    const threshold = typeof body.threshold === "number" ? body.threshold : 40;
+    const status = value < threshold ? "Dark" : "Bright";
+
+    await insertReading(value, threshold, status);
 
     return Response.json({
         value,
