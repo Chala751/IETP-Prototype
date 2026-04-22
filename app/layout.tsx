@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Space_Grotesk } from "next/font/google";
+
+import Navbar from "@/app/components/Navbar";
+import { ToastProvider } from "@/app/components/ToastProvider";
 import "./globals.css";
 
 const displayFont = Playfair_Display({
@@ -27,7 +30,12 @@ export default function RootLayout({
       lang="en"
       className={`${displayFont.variable} ${bodyFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ToastProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+        </ToastProvider>
+      </body>
     </html>
   );
 }

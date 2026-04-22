@@ -2,7 +2,13 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --nav-bg: rgba(255, 255, 255, 0.76);
+  --nav-border: rgba(15, 23, 42, 0.12);
+  --nav-text: #1e293b;
+  --nav-title: #0f172a;
+  --nav-accent: #0f172a;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -11,11 +17,15 @@
   --font-sans: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root[data-theme="dark"] {
+  --background: #0a0f1c;
+  --foreground: #e2e8f0;
+  --nav-bg: rgba(10, 15, 28, 0.8);
+  --nav-border: rgba(148, 163, 184, 0.2);
+  --nav-text: #e2e8f0;
+  --nav-title: #f8fafc;
+  --nav-accent: #f8fafc;
+  color-scheme: dark;
 }
 
 body {

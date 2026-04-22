@@ -3,10 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useToast } from "@/app/components/ToastProvider";
+
 type AuthMode = "login" | "register";
 
 export default function Home() {
   const router = useRouter();
+  const { pushToast } = useToast();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +48,15 @@ export default function Home() {
         return;
       }
 
-      router.push("/light");
+      pushToast(
+        mode === "login" ? "Signed in successfully." : "Account created successfully.",
+        "success"
+      );
+      try {
+        router.push("/light");
+      } catch {
+        window.location.assign("/light");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error.");
     } finally {
