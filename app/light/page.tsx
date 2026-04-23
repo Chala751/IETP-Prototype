@@ -360,12 +360,14 @@ export default function LightPage() {
 
     const efficiencyPct = Math.min(100, Math.max(0, energySaved));
 
-    const latestTimestamp = historyReadings[0]?.timestamp ?? snapshot?.timestamp;
+    const latestReading = historyReadings[0] ?? snapshot;
+    const latestTimestamp = latestReading?.timestamp;
     const lastPacketAge = latestTimestamp
         ? Date.now() - new Date(latestTimestamp).getTime()
         : Number.POSITIVE_INFINITY;
     const deviceOnline = lastPacketAge < 15000;
-    const wifiStrength = Math.min(100, Math.max(35, Math.round(avgIntensity * 0.7 + 30)));
+    const wifiStrengthBase = typeof latestReading?.value === "number" ? latestReading.value : avgIntensity;
+    const wifiStrength = Math.min(100, Math.max(35, Math.round(wifiStrengthBase * 0.7 + 30)));
 
     const alerts = useMemo(() => {
         const items: { title: string; detail: string }[] = [];

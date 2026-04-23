@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -131,8 +132,15 @@ export default function Navbar() {
         <header className="sticky top-0 z-40 w-full border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur">
             <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-6 py-4">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 text-[0.7rem] font-semibold text-white shadow-[0_12px_30px_-16px_rgba(0,0,0,0.7)] sm:h-11 sm:w-11 sm:text-sm">
-                        IOT
+                    <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-[var(--nav-border)] bg-[var(--nav-bg)] shadow-[0_12px_30px_-16px_rgba(0,0,0,0.7)] sm:h-11 sm:w-11">
+                        <Image
+                            src="/logo.png"
+                            alt="IETP logo"
+                            fill
+                            sizes="44px"
+                            className="object-contain"
+                            priority
+                        />
                     </div>
                     <div className="max-w-[10rem] truncate text-xs font-semibold leading-tight text-[var(--nav-title)] sm:max-w-[24rem] sm:text-sm lg:max-w-[32rem]">
                         IoT-Based Light Intensity Monitoring and Smart Control System with Web Application
