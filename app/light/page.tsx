@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type LightSnapshot = {
@@ -28,7 +28,9 @@ export default function LightPage() {
     });
     const [thresholdTouched, setThresholdTouched] = useState(false);
     const [controlBusy, setControlBusy] = useState(false);
+    const [thresholdUpdating, setThresholdUpdating] = useState(false);
     const [controlError, setControlError] = useState<string | null>(null);
+    const thresholdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -103,10 +105,13 @@ export default function LightPage() {
         };
     }, [authLoading, userEmail]);
 
-    const handleLogout = async () => {
-        await fetch("/api/auth/logout", { method: "POST" });
-        router.replace("/");
-    };
+    useEffect(() => {
+        return () => {
+            if (thresholdTimerRef.current) {
+                window.clearTimeout(thresholdTimerRef.current);
+            }
+        };
+    }, []);
 
     const handleControlSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -144,6 +149,57 @@ export default function LightPage() {
         }
     };
 
+    const submitThresholdUpdate = async (nextThreshold: number) => {
+        setControlError(null);
+        setThresholdUpdating(true);
+
+        try {
+            const response = await fetch("/api/light", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ threshold: nextThreshold }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update the threshold");
+            }
+
+            const data = (await response.json()) as LightSnapshot;
+            setSnapshot(data);
+        } catch (err) {
+            setControlError(err instanceof Error ? err.message : "Unknown error");
+        } finally {
+            setThresholdUpdating(false);
+        }
+    };
+
+    const queueThresholdUpdate = (nextThreshold: number) => {
+        if (thresholdTimerRef.current) {
+            window.clearTimeout(thresholdTimerRef.current);
+        }
+
+        thresholdTimerRef.current = window.setTimeout(() => {
+            submitThresholdUpdate(nextThreshold);
+        }, 400);
+    };
+
+    const handleThresholdChange = (nextThreshold: number) => {
+        setThresholdTouched(true);
+        setControl((prev) => ({
+            ...prev,
+            threshold: nextThreshold,
+        }));
+        setSnapshot((prev) =>
+            prev
+                ? {
+                    ...prev,
+                    threshold: nextThreshold,
+                }
+                : prev
+        );
+        queueThresholdUpdate(nextThreshold);
+    };
+
     const status = snapshot?.status ?? "--";
     const value = snapshot?.value ?? 0;
     const threshold = snapshot?.threshold ?? 0;
@@ -154,72 +210,127 @@ export default function LightPage() {
         [value]
     );
 
+    const lightState = value >= threshold ? "Bright" : "Dark";
+    const intensityLabel = valuePercent >= 80
+        ? "Very bright"
+        : valuePercent >= 60
+            ? "Bright"
+            : valuePercent >= 40
+                ? "Balanced"
+                : valuePercent >= 20
+                    ? "Dim"
+                    : "Very dark";
+    const stageIndex = valuePercent >= 60 ? 2 : valuePercent >= 40 ? 1 : 0;
+    const stageLabels = ["Dim", "Balanced", "Bright"];
+
     if (authLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+            <div className="flex min-h-screen items-center justify-center bg-[var(--home-bg)] text-[var(--home-strong)]">
                 Checking access...
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f6f2ff,_#e8e1ff,_#dcd2f7)] text-slate-900">
-            <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-14">
+        <div className="relative min-h-screen overflow-hidden bg-[var(--home-bg)] text-[var(--home-strong)]">
+            <div className="pointer-events-none absolute inset-0">
+                <div className="absolute -right-32 top-0 h-[420px] w-[420px] rounded-full bg-[var(--home-orb-1)] opacity-70 blur-3xl" />
+                <div className="absolute -bottom-40 left-[-10%] h-[520px] w-[520px] rounded-full bg-[var(--home-orb-2)] opacity-60 blur-3xl" />
+            </div>
+
+            <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-6 py-14">
                 <header className="flex flex-col gap-4">
                     <div className="flex items-center justify-between gap-4">
-                        <p className="text-sm uppercase tracking-[0.35em] text-slate-500">
+                        <p className="text-sm uppercase tracking-[0.35em] text-[var(--home-muted)]">
                             Light Control
                         </p>
-                        <div className="flex items-center gap-3 text-sm text-slate-600">
-                            <span>{userEmail}</span>
-                            <button
-                                type="button"
-                                onClick={handleLogout}
-                                className="rounded-full border border-slate-300 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-slate-600 transition hover:border-slate-400"
-                            >
-                                Log out
-                            </button>
-                        </div>
                     </div>
-                    <h1 className="font-[var(--font-display)] text-4xl font-semibold leading-tight text-slate-900 md:text-5xl">
+                    <h1 className="font-[var(--font-display)] text-4xl font-semibold leading-tight text-[var(--home-strong)] md:text-5xl">
                         Light sensor simulator
                     </h1>
-                    <p className="max-w-2xl text-lg text-slate-600">
+                    <p className="max-w-2xl text-lg text-[var(--home-text)]">
                         Monitor the latest sensor output and send new thresholds or manual
                         values to test the system response.
                     </p>
                 </header>
 
                 <section className="grid gap-6 md:grid-cols-[minmax(0,_2fr)_minmax(0,_1fr)]">
-                    <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-8 shadow-[0_30px_80px_-50px_rgba(0,0,0,0.45)] backdrop-blur">
+                    <div className="rounded-3xl border border-[var(--home-card-border)] bg-[var(--home-card)] p-8 shadow-[0_30px_80px_-50px_rgba(0,0,0,0.45)] backdrop-blur">
                         <div className="flex items-start justify-between gap-6">
                             <div>
-                                <p className="text-sm font-medium uppercase tracking-[0.25em] text-slate-400">
+                                <p className="text-sm font-medium uppercase tracking-[0.25em] text-[var(--home-muted)]">
                                     Latest light level
                                 </p>
                                 <div className="mt-4 flex items-end gap-4">
-                                    <span className="text-6xl font-semibold text-slate-900">
+                                    <span className="text-6xl font-semibold text-[var(--home-strong)]">
                                         {value.toFixed(1)}
                                     </span>
-                                    <span className="pb-2 text-lg text-slate-500">%</span>
+                                    <span className="pb-2 text-lg text-[var(--home-muted)]">%</span>
                                 </div>
-                                <p className="mt-3 text-sm text-slate-500">
-                                    Threshold: {threshold}%
-                                </p>
+                                <div className="mt-4 flex flex-wrap gap-3">
+                                    <span className="rounded-full border border-[var(--home-card-border)] bg-[var(--home-card)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--home-muted)]">
+                                        {lightState}
+                                    </span>
+                                    <span className="rounded-full border border-[var(--home-card-border)] bg-[var(--home-card)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--home-muted)]">
+                                        {intensityLabel}
+                                    </span>
+                                </div>
+                                <div className="mt-6 grid w-full gap-4 sm:grid-cols-3">
+                                    {stageLabels.map((label, index) => {
+                                        const isActive = index === stageIndex;
+
+                                        return (
+                                            <div
+                                                key={label}
+                                                className="flex flex-col items-center gap-3 text-center"
+                                            >
+                                                <div
+                                                    className={`flex h-16 w-16 items-center justify-center rounded-full border ${isActive
+                                                        ? "border-amber-300/70 bg-amber-200/60 text-slate-900 shadow-[0_12px_30px_-18px_rgba(245,158,11,0.8)]"
+                                                        : "border-[var(--home-card-border)] bg-white/60 text-[var(--home-muted)]"
+                                                        }`}
+                                                >
+                                                    <div
+                                                        className={`h-6 w-6 rounded-full ${isActive
+                                                            ? "bg-gradient-to-br from-amber-300 via-orange-300 to-rose-300"
+                                                            : "bg-[var(--home-card-border)]"
+                                                            }`}
+                                                    />
+                                                </div>
+                                                <span
+                                                    className={`text-xs font-semibold uppercase tracking-[0.2em] ${isActive
+                                                        ? "text-[var(--home-strong)]"
+                                                        : "text-[var(--home-muted)]"
+                                                        }`}
+                                                >
+                                                    {label}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                            <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600">
-                                {loading ? "Loading..." : status}
+                            <div className="flex flex-col items-end gap-3">
+                                <div className="rounded-full border border-[var(--home-card-border)] bg-[var(--home-card)] px-4 py-2 text-sm font-medium text-[var(--home-text)]">
+                                    {loading ? "Loading..." : status}
+                                </div>
+                                <div className="inline-flex items-center gap-3 rounded-full border border-[var(--home-card-border)] bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--home-muted)] shadow-[0_18px_40px_-30px_rgba(0,0,0,0.45)]">
+                                    <span>Threshold</span>
+                                    <span className="rounded-full bg-[var(--home-card)] px-3 py-1 text-sm font-semibold tracking-[0.08em] text-[var(--home-strong)]">
+                                        {threshold}%
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
                         <div className="mt-8">
-                            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+                            <div className="h-3 w-full overflow-hidden rounded-full bg-white/50">
                                 <div
-                                    className="h-full rounded-full bg-gradient-to-r from-indigo-300 via-fuchsia-400 to-pink-500 transition-all"
+                                    className="h-full rounded-full bg-gradient-to-r from-amber-200 via-orange-300 to-rose-400 transition-all"
                                     style={{ width: `${valuePercent}%` }}
                                 />
                             </div>
-                            <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
+                            <div className="mt-3 flex items-center justify-between text-xs text-[var(--home-muted)]">
                                 <span>Dark</span>
                                 <span>Bright</span>
                             </div>
@@ -227,26 +338,26 @@ export default function LightPage() {
                     </div>
 
                     <div className="flex flex-col gap-6">
-                        <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-[0_20px_50px_-40px_rgba(0,0,0,0.45)] backdrop-blur">
-                            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
+                        <div className="rounded-3xl border border-[var(--home-card-border)] bg-[var(--home-card)] p-6 shadow-[0_20px_50px_-40px_rgba(0,0,0,0.45)] backdrop-blur">
+                            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--home-muted)]">
                                 System status
                             </p>
-                            <p className="mt-4 text-xl font-semibold text-slate-900">
-                                Mock data stream
+                            <p className="mt-4 text-xl font-semibold text-[var(--home-strong)]">
+                                data stream
                             </p>
-                            <p className="mt-2 text-sm text-slate-600">Updated at {updated}</p>
+                            <p className="mt-2 text-sm text-[var(--home-text)]">Updated at {updated}</p>
                             {error && (
                                 <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600">
                                     {error}
                                 </p>
                             )}
                         </div>
-                        <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-[0_20px_50px_-40px_rgba(0,0,0,0.45)] backdrop-blur">
-                            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
+                        <div className="rounded-3xl border border-[var(--home-card-border)] bg-[var(--home-card)] p-6 shadow-[0_20px_50px_-40px_rgba(0,0,0,0.45)] backdrop-blur">
+                            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--home-muted)]">
                                 Control desk
                             </p>
                             <form className="mt-4 flex flex-col gap-4" onSubmit={handleControlSubmit}>
-                                <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                                <label className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--home-muted)]">
                                     Threshold
                                     <div className="mt-2 flex items-center gap-3">
                                         <input
@@ -255,15 +366,9 @@ export default function LightPage() {
                                             max={100}
                                             value={control.threshold}
                                             onChange={(event) =>
-                                                {
-                                                    setThresholdTouched(true);
-                                                    setControl((prev) => ({
-                                                        ...prev,
-                                                        threshold: Number(event.target.value),
-                                                    }));
-                                                }
+                                                handleThresholdChange(Number(event.target.value))
                                             }
-                                            className="h-2 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200"
+                                            className="h-2 flex-1 cursor-pointer appearance-none rounded-full bg-white/60"
                                         />
                                         <input
                                             type="number"
@@ -271,19 +376,13 @@ export default function LightPage() {
                                             max={100}
                                             value={control.threshold}
                                             onChange={(event) =>
-                                                {
-                                                    setThresholdTouched(true);
-                                                    setControl((prev) => ({
-                                                        ...prev,
-                                                        threshold: Number(event.target.value),
-                                                    }));
-                                                }
+                                                handleThresholdChange(Number(event.target.value))
                                             }
-                                            className="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+                                            className="w-20 rounded-xl border border-[var(--home-card-border)] bg-[var(--home-card)] px-3 py-2 text-sm text-[var(--home-strong)]"
                                         />
                                     </div>
                                 </label>
-                                <label className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                                <label className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--home-muted)]">
                                     Manual value (optional)
                                     <input
                                         type="number"
@@ -294,7 +393,7 @@ export default function LightPage() {
                                         onChange={(event) =>
                                             setControl((prev) => ({ ...prev, value: event.target.value }))
                                         }
-                                        className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+                                        className="mt-2 w-full rounded-xl border border-[var(--home-card-border)] bg-[var(--home-card)] px-3 py-2 text-sm text-[var(--home-strong)]"
                                     />
                                 </label>
                                 {controlError && (
@@ -304,10 +403,10 @@ export default function LightPage() {
                                 )}
                                 <button
                                     type="submit"
-                                    disabled={controlBusy}
+                                    disabled={controlBusy || thresholdUpdating}
                                     className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
                                 >
-                                    {controlBusy ? "Sending" : "Send update"}
+                                    {controlBusy || thresholdUpdating ? "Sending" : "Send update"}
                                 </button>
                             </form>
                         </div>
