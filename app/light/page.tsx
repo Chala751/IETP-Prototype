@@ -38,7 +38,7 @@ export default function LightPage() {
     const [history, setHistory] = useState<LightSnapshot[]>([]);
     const [historyError, setHistoryError] = useState<string | null>(null);
     const [chartRange, setChartRange] = useState(60);
-    const thresholdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const thresholdTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
     const historyLimit = 200;
 
     useEffect(() => {
