@@ -72,7 +72,7 @@ export default function Home() {
         <div className="absolute -bottom-40 left-[-10%] h-[520px] w-[520px] rounded-full bg-[var(--home-orb-2)] opacity-60 blur-3xl" />
       </div>
 
-      <main className="relative mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-16">
+      <main className="relative mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-12 sm:gap-16 sm:px-6 sm:py-16">
         <section className="grid items-center gap-10 lg:grid-cols-[minmax(0,_1.15fr)_minmax(0,_0.85fr)]">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-4">
@@ -107,7 +107,7 @@ export default function Home() {
             </div>
           </div>
 
-          <section className="rounded-3xl border border-[var(--home-card-border)] bg-[var(--home-card)] p-8 shadow-[0_40px_90px_-60px_rgba(0,0,0,0.65)] backdrop-blur">
+          <section className="rounded-3xl border border-[var(--home-card-border)] bg-[var(--home-card)] p-6 shadow-[0_40px_90px_-60px_rgba(0,0,0,0.65)] backdrop-blur sm:p-8">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--home-muted)]">
@@ -117,11 +117,11 @@ export default function Home() {
                   {mode === "login" ? "Welcome back" : "Create your access"}
                 </h2>
               </div>
-              <div className="flex rounded-full border border-[var(--home-card-border)] bg-[var(--home-card)] p-1 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--home-muted)]">
+              <div className="flex w-full flex-col gap-2 rounded-2xl border border-[var(--home-card-border)] bg-[var(--home-card)] p-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--home-muted)] sm:w-auto sm:flex-row sm:rounded-full sm:text-xs sm:tracking-[0.25em]">
                 <button
                   type="button"
                   onClick={() => setMode("login")}
-                  className={`rounded-full px-3 py-2 transition ${mode === "login"
+                  className={`w-full rounded-2xl px-3 py-2 transition sm:w-auto sm:rounded-full ${mode === "login"
                     ? "bg-slate-900 text-white"
                     : "text-slate-500"
                     }`}
@@ -131,7 +131,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setMode("register")}
-                  className={`rounded-full px-3 py-2 transition ${mode === "register"
+                  className={`w-full rounded-2xl px-3 py-2 transition sm:w-auto sm:rounded-full ${mode === "register"
                     ? "bg-slate-900 text-white"
                     : "text-slate-500"
                     }`}
@@ -141,7 +141,7 @@ export default function Home() {
               </div>
             </div>
 
-            <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
+            <form className="mt-6 flex flex-col gap-5 sm:mt-8" onSubmit={handleSubmit}>
               <label className="flex flex-col gap-2 text-sm font-medium text-[var(--home-text)]">
                 Email
                 <input
@@ -244,7 +244,7 @@ export default function Home() {
               <div className="overflow-hidden rounded-3xl border border-[var(--home-card-border)] bg-[var(--home-card)] shadow-[0_30px_70px_-50px_rgba(0,0,0,0.55)] backdrop-blur">
                 <div className="relative h-full min-h-[260px] w-full">
                   <Image
-                    src="/lighting.jpg"
+                    src="/Lighting.jpg"
                     alt="Smart lighting system in action"
                     fill
                     className="object-cover"
@@ -269,7 +269,7 @@ export default function Home() {
               <div className="overflow-hidden rounded-2xl border border-[var(--home-card-border)] bg-[var(--home-card)] shadow-[0_24px_60px_-45px_rgba(0,0,0,0.55)]">
                 <div className="relative h-full min-h-[220px] w-full">
                   <Image
-                    src="/lighting2.jpg"
+                    src="/Lighting2.jpg"
                     alt="Lighting sensor prototype setup"
                     fill
                     className="object-cover"
