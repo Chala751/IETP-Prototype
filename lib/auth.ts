@@ -67,6 +67,7 @@ export async function createUser(email: string, password: string) {
 
     const passwordHash = await hashPassword(password);
     const result = await db.collection<UserDocument>("users").insertOne({
+        _id: new ObjectId(),
         email,
         passwordHash,
         createdAt: new Date(),
