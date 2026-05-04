@@ -15,8 +15,8 @@ const documents: DocumentItem[] = [
         description: "Project scope, objectives, and methodology.",
     },
     {
-        title: "Final Report (PDF)",
-        href: "/finalreport.pdf",
+        title: "Final Project Report (PDF)",
+        href: "/Final%20Project%20Report.pdf",
         description: "Complete outcomes, results, and evaluation.",
     },
 ];
@@ -83,7 +83,7 @@ export default function Footer() {
                             ))}
                         </div>
                         <p className="text-xs text-[var(--footer-muted)]">
-                            Upload the final report when ready.
+                            Final project report is available.
                         </p>
                     </div>
 
