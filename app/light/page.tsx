@@ -7,12 +7,15 @@ type LightSnapshot = {
     value: number;
     threshold: number;
     status: "Bright" | "Dark";
+    ledMode?: "auto" | "on" | "off";
+    ledStatus?: "ON" | "OFF" | null;
     timestamp: string;
 };
 
 type ControlState = {
     threshold: number;
     value: string;
+    ledMode: "auto" | "on" | "off";
 };
 
 type HistoryResponse = {
@@ -30,8 +33,10 @@ export default function LightPage() {
     const [control, setControl] = useState<ControlState>({
         threshold: 40,
         value: "",
+        ledMode: "auto",
     });
     const [thresholdTouched, setThresholdTouched] = useState(false);
+    const [ledModeTouched, setLedModeTouched] = useState(false);
     const [controlBusy, setControlBusy] = useState(false);
     const [thresholdUpdating, setThresholdUpdating] = useState(false);
     const [controlError, setControlError] = useState<string | null>(null);
@@ -92,6 +97,7 @@ export default function LightPage() {
                     setControl((prev) => ({
                         threshold: thresholdTouched ? prev.threshold : data.threshold,
                         value: prev.value,
+                        ledMode: ledModeTouched ? prev.ledMode : data.ledMode ?? prev.ledMode,
                     }));
                 }
             } catch (err) {
@@ -163,8 +169,13 @@ export default function LightPage() {
         setControlError(null);
         setControlBusy(true);
 
-        const payload: { threshold: number; value?: number } = {
+        const payload: {
+            threshold: number;
+            value?: number;
+            ledMode?: ControlState["ledMode"];
+        } = {
             threshold: control.threshold,
+            ledMode: control.ledMode,
         };
 
         if (control.value.trim()) {
@@ -183,6 +194,30 @@ export default function LightPage() {
 
             if (!response.ok) {
                 throw new Error("Failed to update the light reading");
+            }
+
+            const data = (await response.json()) as LightSnapshot;
+            setSnapshot(data);
+        } catch (err) {
+            setControlError(err instanceof Error ? err.message : "Unknown error");
+        } finally {
+            setControlBusy(false);
+        }
+    };
+
+    const submitLedModeUpdate = async (nextMode: ControlState["ledMode"]) => {
+        setControlError(null);
+        setControlBusy(true);
+
+        try {
+            const response = await fetch("/api/light", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ledMode: nextMode }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update LED mode");
             }
 
             const data = (await response.json()) as LightSnapshot;
@@ -245,9 +280,20 @@ export default function LightPage() {
         queueThresholdUpdate(nextThreshold);
     };
 
+    const handleLedModeChange = (nextMode: ControlState["ledMode"]) => {
+        setLedModeTouched(true);
+        setControl((prev) => ({
+            ...prev,
+            ledMode: nextMode,
+        }));
+        submitLedModeUpdate(nextMode);
+    };
+
     const status = snapshot?.status ?? "--";
     const value = snapshot?.value ?? 0;
     const threshold = snapshot?.threshold ?? 0;
+    const ledMode = snapshot?.ledMode ?? "auto";
+    const ledStatus = snapshot?.ledStatus ?? null;
     const updated = snapshot ? new Date(snapshot.timestamp).toLocaleTimeString() : "--";
 
     const valuePercent = useMemo(
@@ -548,6 +594,16 @@ export default function LightPage() {
                                 data stream
                             </p>
                             <p className="mt-2 text-sm text-[var(--home-text)]">Updated at {updated}</p>
+                            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--home-muted)]">
+                                <span className="rounded-full border border-[var(--home-card-border)] bg-[var(--home-card)] px-3 py-1">
+                                    LED mode: {ledMode}
+                                </span>
+                                {ledStatus && (
+                                    <span className="rounded-full border border-[var(--home-card-border)] bg-[var(--home-card)] px-3 py-1">
+                                        LED: {ledStatus}
+                                    </span>
+                                )}
+                            </div>
                             {error && (
                                 <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600">
                                     {error}
@@ -559,6 +615,33 @@ export default function LightPage() {
                                 Control desk
                             </p>
                             <form className="mt-4 flex flex-col gap-4" onSubmit={handleControlSubmit}>
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--home-muted)]">
+                                        LED mode
+                                    </p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {[
+                                            { label: "Auto", value: "auto" },
+                                            { label: "Force on", value: "on" },
+                                            { label: "Force off", value: "off" },
+                                        ].map((mode) => {
+                                            const isActive = control.ledMode === mode.value;
+                                            return (
+                                                <button
+                                                    key={mode.value}
+                                                    type="button"
+                                                    onClick={() => handleLedModeChange(mode.value as ControlState["ledMode"])}
+                                                    className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${isActive
+                                                        ? "border-amber-300/70 bg-amber-200/60 text-slate-900"
+                                                        : "border-[var(--home-card-border)] bg-[var(--home-card)] text-[var(--home-muted)]"
+                                                        }`}
+                                                >
+                                                    {mode.label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                                 <label className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--home-muted)]">
                                     Threshold
                                     <div className="mt-2 flex items-center gap-3">
