@@ -1,4 +1,4 @@
-import { getDbName, getMongoClient } from "@/lib/mongodb";
+import { getLightHistory } from "@/lib/lightStore";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -7,15 +7,7 @@ export async function GET(request: Request) {
         ? Math.min(200, Math.max(1, limitParam))
         : 50;
 
-    const client = await getMongoClient();
-    const db = client.db(getDbName());
-
-    const readings = await db
-        .collection("lightData")
-        .find({}, { projection: { _id: 0 } })
-        .sort({ timestamp: -1 })
-        .limit(limit)
-        .toArray();
+    const readings = getLightHistory(limit);
 
     return Response.json({
         count: readings.length,

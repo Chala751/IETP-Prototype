@@ -10,6 +10,8 @@ type LightSnapshot = {
     ledMode?: "auto" | "on" | "off";
     ledStatus?: "ON" | "OFF" | null;
     timestamp: string;
+    deviceId?: string;
+    raw?: number;
 };
 
 type ControlState = {
