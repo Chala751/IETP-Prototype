@@ -48,6 +48,20 @@ export default function LightPage() {
     const thresholdTimerRef = useRef<number | null>(null);
     const historyLimit = 200;
 
+    const computeLedStatus = (
+        mode: ControlState["ledMode"],
+        reading: number,
+        activeThreshold: number
+    ): "ON" | "OFF" => {
+        if (mode === "on") {
+            return "ON";
+        }
+        if (mode === "off") {
+            return "OFF";
+        }
+        return reading < activeThreshold ? "ON" : "OFF";
+    };
+
     useEffect(() => {
         let mounted = true;
 
@@ -276,6 +290,11 @@ export default function LightPage() {
                 ? {
                     ...prev,
                     threshold: nextThreshold,
+                    ledStatus: computeLedStatus(
+                        (prev.ledMode ?? "auto") as ControlState["ledMode"],
+                        prev.value,
+                        nextThreshold
+                    ),
                 }
                 : prev
         );
@@ -288,6 +307,15 @@ export default function LightPage() {
             ...prev,
             ledMode: nextMode,
         }));
+        setSnapshot((prev) =>
+            prev
+                ? {
+                    ...prev,
+                    ledMode: nextMode,
+                    ledStatus: computeLedStatus(nextMode, prev.value, prev.threshold),
+                }
+                : prev
+        );
         submitLedModeUpdate(nextMode);
     };
 
