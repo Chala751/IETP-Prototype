@@ -16,6 +16,8 @@ type LightState = {
     raw: number;
 };
 
+type LightDoc = LightState & { _id: string };
+
 const DEFAULT_DEVICE_ID = "esp32-wokwi-01";
 
 function percentFromRaw(raw: number) {
@@ -46,10 +48,11 @@ async function getState() {
     const client = await getMongoClient();
     const db = client.db(getDbName());
 
-    const state = await db.collection("lightState").findOne({ _id: "latest" });
+    const col = db.collection<LightDoc>("lightState");
+    const state = await col.findOne({ _id: "latest" });
 
     if (state) {
-        const { _id, ...rest } = state as LightState & { _id: string };
+        const { _id, ...rest } = state;
         return { ...rest, valueMode: rest.valueMode ?? "auto" };
     }
 
@@ -65,7 +68,7 @@ async function getState() {
         raw: rawFromPercent(50),
     };
 
-    await db.collection("lightState").updateOne(
+    await col.updateOne(
         { _id: "latest" },
         { $set: initial },
         { upsert: true }
@@ -78,7 +81,7 @@ async function setState(state: LightState) {
     const client = await getMongoClient();
     const db = client.db(getDbName());
 
-    await db.collection("lightState").updateOne(
+    await db.collection<LightDoc>("lightState").updateOne(
         { _id: "latest" },
         { $set: state },
         { upsert: true }
