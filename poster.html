@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>IoT-Based Light Intensity Monitoring & Smart Control System — ASTU CoEEC Project Poster</title>
+<style>
+  @page { size: 594mm 841mm; margin: 0; }
+
+  :root {
+    --ink:        #0f172a;
+    --ink-soft:   #1e293b;
+    --muted:      #475569;
+    --line:       #d8dee9;
+    --line-soft:  #eef1f6;
+    --card:       #ffffff;
+    --canvas:     #f5f7fb;
+    --amber:      #f59e0b;
+    --amber-soft: #fef3c7;
+    --rose:       #fb7185;
+    --indigo:     #4f46e5;
+    --indigo-soft:#eef2ff;
+    --good:       #16a34a;
+    --warn:       #d97706;
+    --bad:        #dc2626;
+    --astu-red:   #a8181b;
+    --astu-blue:  #1e3a8a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--canvas); color: var(--ink); font-family: "Segoe UI", Inter, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { width: 594mm; height: 841mm; }
+
+  .poster {
+    width: 594mm; height: 841mm;
+    padding: 12mm 12mm 10mm 12mm;
+    display: flex; flex-direction: column; gap: 5mm;
+    background:
+      radial-gradient(circle at 0% 0%, #fff7e0 0%, transparent 35%),
+      radial-gradient(circle at 100% 100%, #eef2ff 0%, transparent 35%),
+      var(--canvas);
+  }
+
+  /* ============ HEADER ============ */
+  header.top {
+    display: grid;
+    grid-template-columns: 110mm 1fr 110mm;
+    gap: 6mm;
+    align-items: stretch;
+  }
+  .uni-chip, .dept-chip {
+    border: 1.2pt solid var(--line);
+    border-radius: 10pt;
+    padding: 4mm 5mm;
+    background: var(--card);
+    box-shadow: 0 1mm 3mm rgba(15,23,42,0.05);
+    display: flex; align-items: center; gap: 4mm;
+  }
+  .uni-chip { background: linear-gradient(135deg, #fff7e0, #ffffff); }
+  .dept-chip { background: linear-gradient(135deg, #eef2ff, #ffffff); justify-content: flex-end; text-align: right; }
+  .uni-chip .logo { width: 22mm; height: 22mm; border-radius: 100pt; background: #fff; padding: 1mm; border: 1pt solid var(--line); }
+  .uni-chip .logo img, .dept-chip .logo img { width: 100%; height: 100%; object-fit: contain; }
+  .uni-chip .label, .dept-chip .label {
+    font-weight: 800; font-size: 17pt; letter-spacing: 0.3pt; color: var(--ink); line-height: 1.05;
+  }
+  .uni-chip .sub, .dept-chip .sub { font-size: 8.5pt; color: var(--muted); margin-top: 1mm; line-height: 1.3; }
+  .dept-chip .label { color: var(--astu-blue); }
+
+  .title-block { text-align: center; }
+  .title-block .tag {
+    display: inline-block;
+    background: linear-gradient(90deg, var(--astu-red), #c0212a);
+    color: #fff; font-weight: 700; font-size: 9pt;
+    padding: 1.5mm 4mm; border-radius: 100pt; letter-spacing: 1.5pt;
+    margin-bottom: 2mm;
+  }
+  .title-block h1 {
+    margin: 0;
+    font-size: 38pt;
+    line-height: 1.04;
+    letter-spacing: -0.4pt;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .title-block h1 .accent { color: var(--amber); }
+  .title-block .sub {
+    margin-top: 2.5mm;
+    font-size: 13pt;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .authors {
+    text-align: center;
+    font-size: 9.5pt;
+    color: var(--ink-soft);
+    border-top: 1pt solid var(--line);
+    border-bottom: 1pt solid var(--line);
+    padding: 3mm 4mm;
+    background: linear-gradient(180deg, #ffffff, #fafbfd);
+    line-height: 1.5;
+  }
+  .authors .row { margin: 0; }
+  .authors b { font-weight: 700; color: var(--ink); }
+  .authors .id { color: var(--muted); font-family: Consolas, "Courier New", monospace; font-size: 8.5pt; }
+  .authors .dept { display: inline-block; background: var(--indigo-soft); color: var(--indigo); padding: 0.2mm 1.5mm; border-radius: 100pt; font-size: 7.5pt; font-weight: 700; margin-left: 1mm; }
+  .authors .dot { color: var(--amber); margin: 0 2mm; }
+  .authors .sup {
+    display: block; margin-top: 2mm; font-size: 10pt;
+    padding-top: 2mm; border-top: 0.6pt dashed var(--line);
+  }
+  .authors .sup b { color: var(--astu-red); }
+
+  /* ============ GRID OF SECTIONS ============ */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5mm;
+  }
+  .col { display: flex; flex-direction: column; gap: 5mm; }
+
+  .card {
+    background: var(--card);
+    border: 1pt solid var(--line);
+    border-radius: 8pt;
+    overflow: hidden;
+    box-shadow: 0 1mm 3mm rgba(15,23,42,0.04);
+  }
+  .card .head {
+    background: linear-gradient(90deg, var(--amber), #fbbf24);
+    color: #1f1300;
+    font-weight: 800;
+    font-size: 12.5pt;
+    padding: 2.8mm 4mm;
+    letter-spacing: 0.2pt;
+    display: flex; align-items: center; gap: 3mm;
+  }
+  .card .head .num {
+    display: inline-grid; place-items: center;
+    width: 7mm; height: 7mm;
+    background: #1f1300; color: #fff;
+    border-radius: 100pt; font-size: 9.5pt;
+  }
+  .card.alt .head { background: linear-gradient(90deg, var(--indigo), #6366f1); color: #fff; }
+  .card.alt .head .num { background: #fff; color: var(--indigo); }
+  .card.dark .head { background: linear-gradient(90deg, var(--ink), #334155); color: #fff; }
+  .card.dark .head .num { background: var(--amber); color: var(--ink); }
+  .card.astu .head { background: linear-gradient(90deg, var(--astu-red), #c0212a); color: #fff; }
+  .card.astu .head .num { background: #fff; color: var(--astu-red); }
+
+  .card .body { padding: 3mm 4mm 4mm; font-size: 10pt; color: var(--ink-soft); line-height: 1.4; }
+  .card .body p { margin: 0 0 2mm; }
+  .card .body p:last-child { margin-bottom: 0; }
+  .card .body h4 {
+    margin: 1mm 0 1.5mm; font-size: 10pt;
+    font-weight: 700; color: var(--ink);
+    text-transform: uppercase; letter-spacing: 0.4pt;
+  }
+
+  ul.clean { margin: 0; padding: 0; list-style: none; }
+  ul.clean li {
+    padding-left: 5.5mm; position: relative;
+    margin-bottom: 1.4mm; font-size: 10pt;
+  }
+  ul.clean li:before {
+    content: ""; position: absolute; left: 1mm; top: 2mm;
+    width: 2mm; height: 2mm; border-radius: 100pt;
+    background: var(--amber);
+    box-shadow: 0 0 0 1pt #fff, 0 0 0 1.6pt var(--amber);
+  }
+
+  table.t {
+    width: 100%; border-collapse: collapse; font-size: 9.5pt;
+  }
+  table.t th, table.t td {
+    text-align: left; padding: 1.8mm 2.2mm;
+    border-bottom: 0.6pt solid var(--line-soft);
+    vertical-align: top;
+  }
+  table.t th {
+    font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4pt;
+    color: var(--muted); background: #fafbfd;
+  }
+  table.t tr:last-child td { border-bottom: none; }
+  table.t td.k { color: var(--muted); }
+  table.t td.v { font-weight: 600; color: var(--ink); }
+  table.t td.mono, table.t td .mono { font-family: Consolas, "Courier New", monospace; font-size: 9pt; }
+  table.t .method {
+    display: inline-block; padding: 0.5mm 2mm; border-radius: 100pt;
+    font-size: 8pt; font-weight: 700; letter-spacing: 0.4pt;
+  }
+  .method.get  { background: #dcfce7; color: #166534; }
+  .method.post { background: #dbeafe; color: #1e40af; }
+
+  .hw-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm;
+    padding: 3mm 3mm 3mm;
+  }
+  .hw {
+    border: 1pt solid var(--line);
+    border-radius: 6pt;
+    padding: 2.5mm 3mm;
+    background: linear-gradient(180deg, #ffffff, #fafbfd);
+  }
+  .hw .name { font-weight: 800; font-size: 10pt; color: var(--ink); margin-bottom: 0.8mm; }
+  .hw .role { font-size: 8.5pt; color: var(--muted); line-height: 1.32; }
+  .hw .spec { margin-top: 1.2mm; font-size: 8pt; color: var(--amber); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4pt; }
+
+  /* ============ ARCHITECTURE DIAGRAM ============ */
+  .arch {
+    padding: 4mm 4mm 5mm;
+    background:
+      radial-gradient(circle at 50% 0%, #eef2ff 0%, transparent 60%),
+      var(--card);
+    border-top: 1pt solid var(--line-soft);
+  }
+  .arch .stack { display: flex; flex-direction: column; align-items: center; gap: 2.5mm; }
+  .node {
+    width: 78%; text-align: center;
+    border: 1.4pt solid var(--ink);
+    border-radius: 8pt;
+    padding: 2.5mm 3mm;
+    background: #fff;
+    font-weight: 700; font-size: 10.5pt;
+    box-shadow: 0 1mm 3mm rgba(15,23,42,0.06);
+  }
+  .node .sub { font-size: 8pt; font-weight: 500; color: var(--muted); margin-top: 0.5mm; }
+  .node.esp { background: linear-gradient(135deg, #fff7e0, #ffffff); border-color: var(--amber); }
+  .node.api { background: linear-gradient(135deg, #eef2ff, #ffffff); border-color: var(--indigo); }
+  .node.db  { background: linear-gradient(135deg, #dcfce7, #ffffff); border-color: var(--good); }
+  .node.ui  { background: linear-gradient(135deg, #ffe4e6, #ffffff); border-color: var(--rose); }
+  .arrow {
+    width: 0; height: 0;
+    border-left: 2.5mm solid transparent;
+    border-right: 2.5mm solid transparent;
+    border-top: 3.5mm solid var(--ink);
+    opacity: 0.65;
+  }
+  .arrow-label {
+    font-size: 7.8pt; color: var(--muted); margin-top: -1.5mm;
+    font-family: Consolas, "Courier New", monospace;
+  }
+
+  /* ============ STATS BAR ============ */
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm;
+    padding: 3.5mm 4mm 2mm;
+  }
+  .stat {
+    text-align: center;
+    border: 1pt solid var(--line);
+    border-radius: 6pt;
+    padding: 2.5mm 1.5mm;
+    background: linear-gradient(180deg, #ffffff, #fafbfd);
+  }
+  .stat .n {
+    font-weight: 800; font-size: 18pt; color: var(--amber); line-height: 1;
+  }
+  .stat .l { font-size: 8pt; color: var(--muted); margin-top: 1.2mm; text-transform: uppercase; letter-spacing: 0.4pt; }
+
+  .badge { display: inline-block; padding: 0.4mm 1.8mm; border-radius: 100pt; font-size: 8pt; font-weight: 700; margin-right: 1mm; }
+  .badge.good { background: #dcfce7; color: var(--good); }
+  .badge.warn { background: #fef3c7; color: var(--warn); }
+  .badge.bad  { background: #fee2e2; color: var(--bad); }
+  .badge.info { background: #dbeafe; color: #1e40af; }
+
+  .results { padding: 0; }
+  .results .dot {
+    display: inline-block; width: 2.2mm; height: 2.2mm; border-radius: 100pt; margin-right: 1.2mm; vertical-align: middle;
+  }
+  .results .dot.g { background: var(--good); }
+  .results .dot.w { background: var(--warn); }
+  .results .dot.r { background: var(--bad); }
+
+  /* ============ SCREENSHOTS ============ */
+  .shots {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 5mm;
+  }
+  .shot {
+    background: var(--card);
+    border: 1pt solid var(--line);
+    border-radius: 8pt;
+    overflow: hidden;
+  }
+  .shot .frame {
+    height: 78mm;
+    overflow: hidden;
+    border-bottom: 1pt solid var(--line);
+    position: relative;
+    background: #f1f5f9;
+  }
+  .shot .frame img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .shot .cap { padding: 2.5mm 4mm; }
+  .shot .cap h5 {
+    margin: 0; font-size: 10pt; font-weight: 800; color: var(--ink);
+  }
+  .shot .cap p { margin: 1mm 0 0; font-size: 9pt; color: var(--muted); line-height: 1.35; }
+
+  /* ============ FOOTER ============ */
+  .footer-band {
+    background: linear-gradient(90deg, var(--astu-red), var(--ink));
+    color: #fff;
+    border-radius: 8pt;
+    padding: 3.5mm 6mm;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 9.5pt;
+  }
+  .footer-band b { color: var(--amber); }
+
+  .conclusion {
+    padding: 3mm 5mm 4mm;
+    font-size: 10pt;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .conclusion strong { color: var(--ink); }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm; padding: 0 3mm 3mm; }
+  .kv {
+    border: 1pt solid var(--line); border-radius: 6pt;
+    padding: 2mm 2.5mm; background: #fafbfd;
+  }
+  .kv .k { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.4pt; color: var(--muted); }
+  .kv .v { font-size: 10pt; font-weight: 800; color: var(--ink); margin-top: 0.3mm; }
+
+  pre.code {
+    margin: 0 4mm 4mm; padding: 2.8mm 3.5mm;
+    background: #0f172a; color: #f8fafc;
+    font-family: Consolas, "Courier New", monospace; font-size: 8.4pt;
+    border-radius: 6pt; line-height: 1.4;
+    overflow: hidden;
+  }
+  pre.code .k { color: #fbbf24; }
+  pre.code .s { color: #86efac; }
+  pre.code .n { color: #93c5fd; }
+  pre.code .c { color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- =========== HEADER =========== -->
+  <header class="top">
+    <div class="uni-chip">
+      <div class="logo"><img src="public/logo.png" alt="SmartLight logo" /></div>
+      <div>
+        <div class="label">ASTU</div>
+        <div class="sub">Adama Science and<br/>Technology University</div>
+      </div>
+    </div>
+
+    <div class="title-block">
+      <span class="tag">ITP FINAL PROJECT &nbsp;·&nbsp; MAY&nbsp;2026</span>
+      <h1>IoT-Based <span class="accent">Light Intensity</span><br/>Monitoring &amp; Smart Control System</h1>
+      <div class="sub">with a Web Application — real-time sensing, threshold automation &amp; remote control</div>
+    </div>
+
+    <div class="dept-chip">
+      <div>
+        <div class="label">CoEEC</div>
+        <div class="sub">College of Electrical<br/>Engineering &amp; Computing</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="authors">
+    <div class="row">
+      <b>Chala Temesgen</b> <span class="id">UGR/30356/15</span><span class="dept">SE</span>
+      <span class="dot">•</span>
+      <b>Dawit Worku</b> <span class="id">UGR/30395/15</span><span class="dept">SE</span>
+      <span class="dot">•</span>
+      <b>Tomas Melesse</b> <span class="id">UGR/31318/15</span><span class="dept">SE</span>
+      <span class="dot">•</span>
+      <b>Wubegzer Alemayehu</b> <span class="id">UGR/31349/15</span><span class="dept">SE</span>
+      <span class="dot">•</span>
+      <b>Sena Temesgen</b> <span class="id">UGR/31217/15</span><span class="dept">ECE</span>
+    </div>
+    <div class="row">
+      <b>Tigist Genene</b> <span class="id">UGR/31304/15</span><span class="dept">ECE</span>
+      <span class="dot">•</span>
+      <b>Chala Atnachew</b> <span class="id">UGR/30352/15</span><span class="dept">ECE</span>
+      <span class="dot">•</span>
+      <b>Dawit Abebe</b> <span class="id">UGR/30397/15</span><span class="dept">ECE</span>
+      <span class="dot">•</span>
+      <b>Meron Kifle</b> <span class="id">UGR/30895/15</span><span class="dept">EPCE</span>
+      <span class="dot">•</span>
+      <b>Ayantu Yibas</b> <span class="id">UGR/30205/15</span><span class="dept">EPCE</span>
+    </div>
+    <div class="sup">Project Supervisor: <b>Mr. G/Tsadikan A.</b> &nbsp;·&nbsp; Date: <b>May 20, 2026</b></div>
+  </div>
+
+  <!-- =========== ROW 1 =========== -->
+  <div class="grid">
+
+    <!-- COL 1 -->
+    <div class="col">
+
+      <div class="card">
+        <div class="head"><span class="num">1</span> Introduction &amp; Objectives</div>
+        <div class="body">
+          <p>Conventional lighting wastes energy because rooms stay lit even when daylight is sufficient or no one is present. This project builds a low-cost IoT node that measures <b>ambient light intensity</b> in real time, streams it to a Next.js web dashboard over Wi-Fi, and triggers <b>automatic LED control</b> based on a user-defined threshold.</p>
+          <h4>Specific Objectives</h4>
+          <ul class="clean">
+            <li>Measure ambient light using an LDR / BH1750 sensor</li>
+            <li>Automate LED control via ESP32 with threshold logic</li>
+            <li>Build a responsive Next.js dashboard for live visualization</li>
+            <li>Establish ESP32 ↔ web app communication using REST APIs</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="head"><span class="num">2</span> Hardware Components</div>
+        <div class="hw-grid">
+          <div class="hw">
+            <div class="name">ESP32 DevKit V1</div>
+            <div class="role">Dual-core MCU with native Wi-Fi &amp; 12-bit ADC for analog sensing</div>
+            <div class="spec">240 MHz · 3.3 V</div>
+          </div>
+          <div class="hw">
+            <div class="name">LDR Module (KY-018)</div>
+            <div class="role">Photoresistor + 10 kΩ voltage divider feeding ESP32 ADC</div>
+            <div class="spec">GPIO34 · ADC1</div>
+          </div>
+          <div class="hw">
+            <div class="name">Red LED + 220 Ω</div>
+            <div class="role">Current-limited indicator simulating the controlled lighting load</div>
+            <div class="spec">GPIO23 · ~5.9 mA</div>
+          </div>
+          <div class="hw">
+            <div class="name">Fixed Resistors</div>
+            <div class="role">10 kΩ for the LDR divider, 220 Ω for LED current limiting</div>
+            <div class="spec">Through-hole</div>
+          </div>
+          <div class="hw">
+            <div class="name">Wi-Fi / Network</div>
+            <div class="role">ESP32 connects to "Wokwi-GUEST" (sim) or local 2.4 GHz Wi-Fi</div>
+            <div class="spec">2.4 GHz</div>
+          </div>
+          <div class="hw">
+            <div class="name">5 V USB Supply</div>
+            <div class="role">Regulated 5 V → internal 3.3 V LDO, ~250 mA peak draw</div>
+            <div class="spec">USB · 5 V</div>
+          </div>
+        </div>
+
+        <table class="t" style="border-top:1pt solid var(--line-soft);">
+          <thead><tr><th>Signal</th><th>Pin / Type</th><th>Range / Unit</th></tr></thead>
+          <tbody>
+            <tr><td class="v">LDR analog</td><td class="mono">GPIO34 (input)</td><td class="mono">0–4095 (12-bit)</td></tr>
+            <tr><td class="v">LED control</td><td class="mono">GPIO23 (output)</td><td class="mono">HIGH / LOW</td></tr>
+            <tr><td class="v">Brightness</td><td>derived</td><td class="mono">0–100 %</td></tr>
+            <tr><td class="v">ADC resolution</td><td>3.3 V / 4096</td><td class="mono">≈ 0.8 mV/step</td></tr>
+            <tr><td class="v">Serial debug</td><td class="mono">UART0</td><td class="mono">115 200 bps</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- COL 2 -->
+    <div class="col">
+
+      <div class="card alt">
+        <div class="head"><span class="num">3</span> System Architecture</div>
+        <div class="arch">
+          <div class="stack">
+            <div class="node esp">
+              ESP32 Sensor Node
+              <div class="sub">LDR → ADC (GPIO34) · LED (GPIO23) · Arduino/C++ firmware</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="arrow-label">HTTPS POST · JSON · Wi-Fi · 1 Hz</div>
+            <div class="node api">
+              Next.js REST API
+              <div class="sub">/api/light · /api/light/history · /api/auth · serverless</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="arrow-label">MongoDB driver · lightState · lightData</div>
+            <div class="node db">
+              MongoDB Atlas
+              <div class="sub">latest snapshot + rolling history</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="arrow-label">fetch · 2.5 s polling · TS / React 19</div>
+            <div class="node ui">
+              Web Dashboard (Next.js)
+              <div class="sub">Gauges · Trend chart · Threshold &amp; LED control</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="head"><span class="num">4</span> System Configuration</div>
+        <table class="t">
+          <tbody>
+            <tr><td class="k">Frontend</td><td class="v">Next.js 16 (App Router) · React 19</td></tr>
+            <tr><td class="k">Language</td><td class="v">TypeScript 5 · Tailwind CSS 4</td></tr>
+            <tr><td class="k">Database</td><td class="v">MongoDB Atlas · driver 7.x</td></tr>
+            <tr><td class="k">Firmware</td><td class="v">Arduino IDE · C++ · ArduinoJson</td></tr>
+            <tr><td class="k">Auth</td><td class="v">Email + password · httpOnly cookie</td></tr>
+            <tr><td class="k">Sensor loop</td><td class="v">~1 Hz (1 s) ESP32 cycle</td></tr>
+            <tr><td class="k">Dashboard refresh</td><td class="v">2.5 s polling · 6 s history</td></tr>
+            <tr><td class="k">History window</td><td class="v">Last 200 readings · 1 h / 6 h / 24 h</td></tr>
+            <tr><td class="k">Device ID</td><td class="v" class="mono">esp32-wokwi-01</td></tr>
+            <tr><td class="k">Deployment</td><td class="v">Vercel · ietp-prototype.vercel.app</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="head"><span class="num">5</span> REST API Endpoints</div>
+        <table class="t">
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><span class="method get">GET</span></td><td class="mono">/api/light</td><td>Latest sensor snapshot + LED state</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/api/light</td><td>Push reading (device) or set threshold / LED mode</td></tr>
+            <tr><td><span class="method get">GET</span></td><td class="mono">/api/light/history</td><td>Up to 200 historical readings</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/api/auth/login</td><td>Authenticate user, set session cookie</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/api/auth/register</td><td>Create new dashboard account</td></tr>
+            <tr><td><span class="method get">GET</span></td><td class="mono">/api/auth/me</td><td>Current session user (guard)</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/api/auth/logout</td><td>Destroy session cookie</td></tr>
+          </tbody>
+        </table>
+<pre class="code">{
+  <span class="c">// GET /api/light  →  live snapshot</span>
+  <span class="k">"value"</span>: <span class="n">24.0</span>,           <span class="c">// brightness %</span>
+  <span class="k">"raw"</span>: <span class="n">1001</span>,            <span class="c">// 12-bit ADC</span>
+  <span class="k">"threshold"</span>: <span class="n">40</span>,
+  <span class="k">"status"</span>: <span class="s">"Dark"</span>,
+  <span class="k">"ledMode"</span>: <span class="s">"auto"</span>,
+  <span class="k">"ledStatus"</span>: <span class="s">"ON"</span>,
+  <span class="k">"deviceId"</span>: <span class="s">"esp32-wokwi-01"</span>,
+  <span class="k">"timestamp"</span>: <span class="s">"2026-05-20T10:42:18Z"</span>
+}</pre>
+      </div>
+
+    </div>
+
+    <!-- COL 3 -->
+    <div class="col">
+
+      <div class="card dark">
+        <div class="head"><span class="num">6</span> Firmware &amp; Dashboard Logic</div>
+        <div class="body">
+          <h4>ESP32 Loop (Arduino · C++)</h4>
+          <ul class="clean">
+            <li><b>connectWiFi()</b> — joins "Wokwi-GUEST" / local SSID at boot</li>
+            <li><b>fetchControl()</b> — GET <span class="mono">/api/light</span>, parses threshold &amp; ledMode</li>
+            <li><b>analogRead(GPIO34)</b> → raw (0–4095) → map() to brightness %</li>
+            <li>Auto rule → LED ON when brightness &lt; threshold; OFF otherwise</li>
+            <li>Override → <span class="mono">ledMode = on / off</span> forces LED state</li>
+            <li><b>postState()</b> — POST raw, value, threshold, ledStatus, deviceId</li>
+          </ul>
+
+          <h4 style="margin-top:3mm;">Web Dashboard Components</h4>
+          <div class="row-2" style="padding:0;">
+            <div class="kv"><div class="k">Live Gauge</div><div class="v">Value · Status · Stage</div></div>
+            <div class="kv"><div class="k">Trend Chart</div><div class="v">1 h / 6 h / 24 h</div></div>
+            <div class="kv"><div class="k">Threshold Slider</div><div class="v">0–100 % · 400 ms debounce</div></div>
+            <div class="kv"><div class="k">LED Mode</div><div class="v">Auto / Force ON / OFF</div></div>
+            <div class="kv"><div class="k">Health Rings</div><div class="v">Signal · Stability · Efficiency</div></div>
+            <div class="kv"><div class="k">History Table</div><div class="v">Last 20 · CSV export</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="head"><span class="num">7</span> Control &amp; Status Rules</div>
+        <table class="t">
+          <thead><tr><th>Brightness</th><th>Reading state</th><th>LED (auto)</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">value &lt; 20 %</td><td><span class="badge bad">VERY DARK</span> illuminate immediately</td><td><span class="badge good">ON</span></td></tr>
+            <tr><td class="mono">20 ≤ value &lt; 40</td><td><span class="badge warn">DIM</span> below threshold</td><td><span class="badge good">ON</span></td></tr>
+            <tr><td class="mono">value = thr.</td><td><span class="badge info">SWITCH</span> transition point</td><td><span class="badge bad">OFF</span></td></tr>
+            <tr><td class="mono">40 ≤ value &lt; 60</td><td><span class="badge info">BALANCED</span> acceptable ambient</td><td><span class="badge bad">OFF</span></td></tr>
+            <tr><td class="mono">60 ≤ value &lt; 80</td><td><span class="badge good">BRIGHT</span> no aux. lighting needed</td><td><span class="badge bad">OFF</span></td></tr>
+            <tr><td class="mono">value ≥ 80 %</td><td><span class="badge good">VERY BRIGHT</span> energy-save mode</td><td><span class="badge bad">OFF</span></td></tr>
+            <tr><td class="mono">ledMode override</td><td><span class="badge info">MANUAL</span> dashboard force on/off</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="head"><span class="num">8</span> Verified Results <span style="margin-left:auto; font-weight:500; font-size:9pt; opacity:0.85;">Wokwi simulation</span></div>
+        <div class="stats">
+          <div class="stat"><div class="n">1.2 s</div><div class="l">Avg API latency</div></div>
+          <div class="stat"><div class="n">98 %</div><div class="l">Packet success</div></div>
+          <div class="stat"><div class="n">300 ms</div><div class="l">LED response</div></div>
+          <div class="stat"><div class="n">1 Hz</div><div class="l">Sensor rate</div></div>
+          <div class="stat"><div class="n">±2 %</div><div class="l">ADC variation</div></div>
+          <div class="stat"><div class="n">4–6 s</div><div class="l">Wi-Fi reconnect</div></div>
+        </div>
+
+        <div class="results" style="padding: 1mm 4mm 4mm;">
+          <h4 style="margin: 2mm 0 1.5mm; font-size:9pt; color:var(--muted); text-transform:uppercase; letter-spacing:0.4pt;">Live verified reading (May 20, 2026)</h4>
+          <table class="t">
+            <tbody>
+              <tr><td class="k">Light value</td><td class="v">1001 raw &nbsp;·&nbsp; 24 %</td><td><span class="dot w"></span>Dim</td></tr>
+              <tr><td class="k">Threshold</td><td class="v">40 %</td><td><span class="dot g"></span>Set via slider</td></tr>
+              <tr><td class="k">LED mode</td><td class="v">auto</td><td><span class="dot g"></span>Verified</td></tr>
+              <tr><td class="k">LED status</td><td class="v">ON</td><td><span class="dot g"></span>Below threshold</td></tr>
+              <tr><td class="k">Device ID</td><td class="v" class="mono">esp32-wokwi-01</td><td><span class="dot g"></span>Online</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========== SCREENSHOTS =========== -->
+  <div class="card astu">
+    <div class="head"><span class="num">9</span> Simulation &amp; Dashboard Screenshots</div>
+    <div style="padding: 4mm;">
+      <div class="shots">
+        <div class="shot">
+          <div class="frame"><img src="public/ESP32.jpg" alt="ESP32 microcontroller hardware" /></div>
+          <div class="cap">
+            <h5>Figure 1 · ESP32 + LDR + LED (Wokwi)</h5>
+            <p>Virtual circuit: ESP32 DevKit V1, LDR voltage divider on GPIO34, red LED with 220 Ω limiter on GPIO23.</p>
+          </div>
+        </div>
+        <div class="shot">
+          <div class="frame" style="background:#0f172a;"><img src="public/shot-landing.png" alt="Deployed Next.js landing page" style="object-fit: cover; object-position: top left;" /></div>
+          <div class="cap">
+            <h5>Figure 2 · Deployed Next.js Web App</h5>
+            <p>Live landing &amp; access portal at <b>ietp-prototype.vercel.app</b> — login / register, hero, feature chips.</p>
+          </div>
+        </div>
+        <div class="shot">
+          <div class="frame"><img src="public/Lighting.jpg" alt="Smart lighting environment" /></div>
+          <div class="cap">
+            <h5>Figure 3 · Deployment Environment</h5>
+            <p>Target indoor space where the IoT node monitors ambient light and the dashboard automates the LED.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== CONCLUSION =========== -->
+  <div class="card alt">
+    <div class="head"><span class="num">10</span> Conclusion &amp; Future Work</div>
+    <div class="conclusion">
+      The <strong>IoT-Based Light Intensity Monitoring &amp; Smart Control System</strong> validates an end-to-end pipeline from an ESP32 sensor node (LDR on GPIO34, LED on GPIO23) to a Next.js + MongoDB cloud dashboard over REST APIs. The Wokwi simulation achieved <strong>1.2 s average API latency</strong>, a <strong>98 % packet-success rate</strong>, a <strong>300 ms</strong> LED response and <strong>±2 %</strong> ADC stability, confirming the architecture is viable for small-scale smart-environment automation. <strong>Future work:</strong> physical hardware deployment with PCB &amp; relay-controlled fixture, dual-threshold hysteresis to prevent flicker, TLS + JWT for secure communication, persistent storage via ESP32 NVS, MQTT alongside REST for low-latency scaling, mobile app, and ML-based occupancy / daylight prediction.
+    </div>
+  </div>
+
+  <div class="footer-band">
+    <div>IoT-Based Light Intensity Monitoring &amp; Smart Control System &nbsp;·&nbsp; <b>ASTU CoEEC</b> &nbsp;·&nbsp; Supervisor: Mr. G/Tsadikan A.</div>
+    <div>May 20, 2026 &nbsp;·&nbsp; <b>ietp-prototype.vercel.app</b></div>
+  </div>
+
+</div>
+</body>
+</html>
