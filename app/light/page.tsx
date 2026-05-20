@@ -9,6 +9,7 @@ type LightSnapshot = {
     status: "Bright" | "Dark";
     ledMode?: "auto" | "on" | "off";
     ledStatus?: "ON" | "OFF" | null;
+    valueMode?: "auto" | "manual";
     timestamp: string;
     deviceId?: string;
     raw?: number;
@@ -189,6 +190,7 @@ export default function LightPage() {
             threshold: number;
             value?: number;
             ledMode?: ControlState["ledMode"];
+            valueMode?: "auto" | "manual";
         } = {
             threshold: control.threshold,
             ledMode: control.ledMode,
@@ -198,7 +200,10 @@ export default function LightPage() {
             const manualValue = Number(control.value);
             if (Number.isFinite(manualValue)) {
                 payload.value = manualValue;
+                payload.valueMode = "manual";
             }
+        } else {
+            payload.valueMode = "auto";
         }
 
         try {
@@ -234,6 +239,31 @@ export default function LightPage() {
 
             if (!response.ok) {
                 throw new Error("Failed to update LED mode");
+            }
+
+            const data = (await response.json()) as LightSnapshot;
+            setSnapshot(data);
+        } catch (err) {
+            setControlError(err instanceof Error ? err.message : "Unknown error");
+        } finally {
+            setControlBusy(false);
+        }
+    };
+
+    const handleResumeAuto = async () => {
+        setControlError(null);
+        setControlBusy(true);
+        setControl((prev) => ({ ...prev, value: "" }));
+
+        try {
+            const response = await fetch("/api/light", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ valueMode: "auto" }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to clear manual override");
             }
 
             const data = (await response.json()) as LightSnapshot;
@@ -324,6 +354,8 @@ export default function LightPage() {
     const threshold = snapshot?.threshold ?? 0;
     const ledMode = snapshot?.ledMode ?? "auto";
     const ledStatus = snapshot?.ledStatus ?? null;
+    const valueMode = snapshot?.valueMode ?? "auto";
+    const manualOverrideActive = valueMode === "manual";
     const updated = snapshot ? new Date(snapshot.timestamp).toLocaleTimeString() : "--";
 
     const valuePercent = useMemo(
@@ -552,6 +584,11 @@ export default function LightPage() {
                                     <span className="rounded-full border border-[var(--home-card-border)] bg-[var(--home-card)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--home-muted)]">
                                         {intensityLabel}
                                     </span>
+                                    {manualOverrideActive && (
+                                        <span className="rounded-full border border-amber-300/70 bg-amber-200/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-900">
+                                            Manual override
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="mt-3 flex w-full items-center justify-between gap-3 sm:mt-6 sm:grid sm:grid-cols-3">
                                     {stageLabels.map((label, index) => {
@@ -712,6 +749,21 @@ export default function LightPage() {
                                         }
                                         className="mt-2 w-full rounded-xl border border-[var(--home-card-border)] bg-[var(--home-card)] px-3 py-2 text-sm text-[var(--home-strong)]"
                                     />
+                                    {manualOverrideActive && (
+                                        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300/60 bg-amber-100/40 px-3 py-2 text-[11px] font-semibold normal-case tracking-normal text-slate-900">
+                                            <span>
+                                                Override locked at {value.toFixed(1)}% — sensor updates paused.
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={handleResumeAuto}
+                                                disabled={controlBusy}
+                                                className="rounded-full border border-slate-900/30 bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-900 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                                            >
+                                                Resume auto
+                                            </button>
+                                        </div>
+                                    )}
                                 </label>
                                 {controlError && (
                                     <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600">

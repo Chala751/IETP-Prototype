@@ -2,6 +2,7 @@ import { getDbName, getMongoClient } from "@/lib/mongodb";
 
 type LedMode = "auto" | "on" | "off";
 type LedStatus = "ON" | "OFF";
+type ValueMode = "auto" | "manual";
 
 type LightState = {
     value: number;
@@ -9,6 +10,7 @@ type LightState = {
     status: "Bright" | "Dark";
     ledMode: LedMode;
     ledStatus: LedStatus;
+    valueMode: ValueMode;
     timestamp: string;
     deviceId: string;
     raw: number;
@@ -48,7 +50,7 @@ async function getState() {
 
     if (state) {
         const { _id, ...rest } = state as LightState & { _id: string };
-        return rest;
+        return { ...rest, valueMode: rest.valueMode ?? "auto" };
     }
 
     const initial: LightState = {
@@ -57,6 +59,7 @@ async function getState() {
         status: "Bright",
         ledMode: "auto",
         ledStatus: "OFF",
+        valueMode: "auto",
         timestamp: new Date().toISOString(),
         deviceId: DEFAULT_DEVICE_ID,
         raw: rawFromPercent(50),
@@ -103,6 +106,7 @@ export async function POST(request: Request) {
         value?: number;
         threshold?: number;
         ledMode?: "auto" | "on" | "off";
+        valueMode?: "auto" | "manual";
         deviceId?: string;
         raw?: number;
         ledStatus?: "ON" | "OFF";
@@ -117,14 +121,17 @@ export async function POST(request: Request) {
     const current = await getState();
 
     if (isDevicePayload) {
-        const nextRaw =
-            typeof body.raw === "number"
+        const isManualLocked = current.valueMode === "manual";
+        const nextRaw = isManualLocked
+            ? current.raw
+            : typeof body.raw === "number"
                 ? body.raw
                 : typeof body.value === "number"
                     ? rawFromPercent(body.value)
                     : current.raw;
-        const nextValue =
-            typeof body.value === "number"
+        const nextValue = isManualLocked
+            ? current.value
+            : typeof body.value === "number"
                 ? body.value
                 : typeof body.raw === "number"
                     ? percentFromRaw(body.raw)
@@ -132,8 +139,9 @@ export async function POST(request: Request) {
         const nextThreshold =
             typeof body.threshold === "number" ? body.threshold : current.threshold;
         const nextDeviceId = typeof body.deviceId === "string" ? body.deviceId : current.deviceId;
-        const nextLedStatus =
-            body.ledStatus === "ON" || body.ledStatus === "OFF"
+        const nextLedStatus = isManualLocked
+            ? computeLedStatus(nextValue, nextThreshold, current.ledMode)
+            : body.ledStatus === "ON" || body.ledStatus === "OFF"
                 ? body.ledStatus
                 : computeLedStatus(nextValue, nextThreshold, current.ledMode);
 
@@ -160,6 +168,12 @@ export async function POST(request: Request) {
         body.ledMode === "auto" || body.ledMode === "on" || body.ledMode === "off"
             ? body.ledMode
             : current.ledMode;
+    const explicitValueMode: ValueMode | undefined =
+        body.valueMode === "auto" || body.valueMode === "manual"
+            ? body.valueMode
+            : undefined;
+    const nextValueMode: ValueMode =
+        explicitValueMode ?? (typeof body.value === "number" ? "manual" : current.valueMode);
     const nextRaw = typeof body.value === "number" ? rawFromPercent(body.value) : current.raw;
     const nextLedStatus = computeLedStatus(nextValue, nextThreshold, nextLedMode);
 
@@ -169,6 +183,7 @@ export async function POST(request: Request) {
         value: nextValue,
         threshold: nextThreshold,
         ledMode: nextLedMode,
+        valueMode: nextValueMode,
         ledStatus: nextLedStatus,
         status: resolveStatus(nextValue, nextThreshold),
         timestamp: new Date().toISOString(),
