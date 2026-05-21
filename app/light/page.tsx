@@ -320,6 +320,7 @@ export default function LightPage() {
                 ? {
                     ...prev,
                     threshold: nextThreshold,
+                    status: prev.value >= nextThreshold ? "Bright" : "Dark",
                     ledStatus: computeLedStatus(
                         (prev.ledMode ?? "auto") as ControlState["ledMode"],
                         prev.value,
