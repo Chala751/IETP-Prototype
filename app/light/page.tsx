@@ -405,7 +405,7 @@ export default function LightPage() {
         ? chartReadings.reduce((total, reading) => total + reading.value, 0) / chartReadings.length
         : value;
     const avgIntensity = Math.round(averageValue);
-    const belowThresholdCount = chartReadings.filter((reading) => reading.value < reading.threshold).length;
+    const belowThresholdCount = chartReadings.filter((reading) => reading.value < control.threshold).length;
     const energySaved = chartReadings.length
         ? Math.round((belowThresholdCount / chartReadings.length) * 100)
         : 0;
